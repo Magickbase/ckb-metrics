@@ -2,6 +2,7 @@
 import { helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
+import { log } from '@/utils/notifier/log'
 
 const TOLERANCE = 100_000_000n
 
@@ -39,6 +40,12 @@ export const validateBalanceByBlock = async (hash: string) => {
       d.error = `Expected ${d.capacity} but got ${c.capacity} from explorer, diff by ${diff}`
     }
   }
+
+  for (const [addr, { error }] of addresses.entries()) {
+    if (!error) continue
+    log(addr, error)
+  }
+
   const res = Object.fromEntries(addresses)
   return res
 }
