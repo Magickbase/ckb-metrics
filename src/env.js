@@ -9,6 +9,8 @@ export const env = createEnv({
   server: {
     // POSTGRES_URL: z.string().url(),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    CKB_RPC_URL: z.string().url(),
+    CKB_EXPLORER_URL: z.string().url(),
   },
 
   /**
@@ -27,6 +29,8 @@ export const env = createEnv({
   runtimeEnv: {
     // POSTGRES_URL: process.env.POSTGRES_URL,
     NODE_ENV: process.env.NODE_ENV,
+    CKB_RPC_URL: process.env.CKB_RPC_URL,
+    CKB_EXPLORER_URL: process.env.CKB_EXPLORER_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
