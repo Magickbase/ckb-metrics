@@ -1,7 +1,7 @@
 import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
-import { log } from '@/utils/notifier/log'
+import { notify as log } from '@/utils/notifier/tg'
 import { validatedBlockHashes, validatedAddresses } from '@/utils/state'
 
 const TOLERANCE = 100n // 1%
