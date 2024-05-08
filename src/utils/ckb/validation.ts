@@ -6,17 +6,17 @@ import { log } from '@/utils/notifier/log'
 
 const TOLERANCE = 100_000_000n
 
+interface Address {
+  capacity: bigint
+  error?: string
+}
+
 // TODO validate inputs
-export const validateBalanceByBlock = async (hash: string) => {
+export const validateAddressesInBlock = async (hash: string) => {
+  console.info(`Validating block ${hash}`)
   const block = await nodeApi.getBlockByHash(hash)
   const outputCells = block.transactions.flatMap((tx) => tx.outputs)
-  const addresses = new Map<
-    string,
-    {
-      capacity: bigint
-      error?: string
-    }
-  >()
+  const addresses = new Map<string, Address>()
 
   outputCells.forEach((c) => {
     const addr = helpers.encodeToAddress(c.lock)

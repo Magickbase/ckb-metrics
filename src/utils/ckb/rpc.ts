@@ -48,7 +48,13 @@ export const getCapacitiesByAddresses = async (
   }))
 }
 
+export const getTipHeader = async () => {
+  const res = await rpc.getTipHeader()
+  return res
+}
+
 export default {
   getBlockByHash,
   getCapacitiesByAddresses,
+  getTipHeader,
 }
