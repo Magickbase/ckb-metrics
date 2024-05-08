@@ -2,8 +2,10 @@ import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
 import { log } from '@/utils/notifier/log'
+import { validatedBlockHashes, validatedAddresses } from '@/utils/state'
 
 const TOLERANCE = 100n // 1%
+// const EXPIRE_MILLISECONDS = 10 * 60
 
 interface Address {
   capacity: bigint
@@ -22,16 +24,27 @@ export const validateAddressesInBlock = async (hash: string) => {
 
 export const validateAddressesInBlocks = async (tip: number) => {
   const blocks = await nodeApi.getBlocks(tip)
-  console.info(`Validating block ${blocks.map((b) => b.header.hash)}`)
-  const outputCells = blocks.flatMap((block) => block.transactions.flatMap((tx) => tx.outputs))
-  const addresses = outputCells.map((oc) =>
-    helpers.encodeToAddress({
-      codeHash: oc.lock.code_hash,
-      hashType: oc.lock.hash_type as HashType,
-      args: oc.lock.args,
-    }),
-  )
-  const result = await validateAddresses(addresses)
+  const blocksToValidate = blocks.filter((b) => !validatedBlockHashes.isValidated(b.header.hash))
+  validatedBlockHashes.add(blocksToValidate.map((b) => b.header.hash))
+
+  console.info(`Validating ${blocksToValidate.length} blocks\n${blocksToValidate.map((b) => b.header.hash).join('\n')}`)
+  const outputCells = blocksToValidate.flatMap((block) => block.transactions.flatMap((tx) => tx.outputs))
+  const addresses = [
+    ...new Set(
+      outputCells.map((oc) =>
+        helpers.encodeToAddress({
+          codeHash: oc.lock.code_hash,
+          hashType: oc.lock.hash_type as HashType,
+          args: oc.lock.args,
+        }),
+      ),
+    ),
+  ]
+  const addressesToValidate = addresses.filter((addr) => validatedAddresses.isExpired(addr))
+  validatedAddresses.add(addressesToValidate)
+  console.info(`Validating ${addressesToValidate.length} addresses\n${addressesToValidate.map((a) => a).join('\n')}`)
+
+  const result = await validateAddresses(addressesToValidate)
   return Object.fromEntries(result)
 }
 
