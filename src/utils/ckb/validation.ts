@@ -3,7 +3,7 @@ import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
 import { log } from '@/utils/notifier/log'
 
-const TOLERANCE = 100_000_000n
+const TOLERANCE = 100n // 1%
 
 interface Address {
   capacity: bigint
@@ -45,12 +45,14 @@ export const validateAddresses = async (addrList: string[]) => {
   })
 
   for (const addr of addresses.keys()) {
-    const c = await explorerApi.getBalancByAddress(addr)
-    const d = addresses.get(addr)
-    if (!c || !d) continue
-    const diff = d.capacity - c.capacity
-    if (diff > TOLERANCE || diff < -1n * TOLERANCE) {
-      d.error = `Expected ${d.capacity} but got ${c.capacity} from explorer, diff by ${diff}`
+    const e = await explorerApi.getBalancByAddress(addr)
+    const n = addresses.get(addr)
+    if (!e || !n) continue
+    let diff = n.capacity - e.capacity
+    if (diff < 0) diff = -1n * diff
+
+    if (diff > n.capacity / TOLERANCE) {
+      n.error = `Expected ${n.capacity} but got ${e.capacity} from explorer, diff by ${diff}`
     }
   }
 
