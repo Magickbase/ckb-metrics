@@ -1,5 +1,4 @@
-// import { getBlockByHash, getCapacitiesByAddresses } from '@/utils/ckb/rpc'
-import { helpers } from '@ckb-lumos/lumos'
+import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
 import { log } from '@/utils/notifier/log'
@@ -16,14 +15,28 @@ export const validateAddressesInBlock = async (hash: string) => {
   console.info(`Validating block ${hash}`)
   const block = await nodeApi.getBlockByHash(hash)
   const outputCells = block.transactions.flatMap((tx) => tx.outputs)
-  const addresses = new Map<string, Address>()
+  const addresses = outputCells.map((oc) => helpers.encodeToAddress(oc.lock))
+  const result = await validateAddresses(addresses)
+  return Object.fromEntries(result)
+}
 
-  outputCells.forEach((c) => {
-    const addr = helpers.encodeToAddress(c.lock)
-    addresses.set(addr, {
-      capacity: 0n,
-    })
-  })
+export const validateAddressesInBlocks = async (tip: number) => {
+  const blocks = await nodeApi.getBlocks(tip)
+  console.info(`Validating block ${blocks.map((b) => b.header.hash)}`)
+  const outputCells = blocks.flatMap((block) => block.transactions.flatMap((tx) => tx.outputs))
+  const addresses = outputCells.map((oc) =>
+    helpers.encodeToAddress({
+      codeHash: oc.lock.code_hash,
+      hashType: oc.lock.hash_type as HashType,
+      args: oc.lock.args,
+    }),
+  )
+  const result = await validateAddresses(addresses)
+  return Object.fromEntries(result)
+}
+
+export const validateAddresses = async (addrList: string[]) => {
+  const addresses = new Map<string, Address>(addrList.map((addr) => [addr, { capacity: 0n }]))
 
   const capacities = await nodeApi.getCapacitiesByAddresses([...addresses.keys()])
 
@@ -46,6 +59,5 @@ export const validateAddressesInBlock = async (hash: string) => {
     log(addr, error)
   }
 
-  const res = Object.fromEntries(addresses)
-  return res
+  return addresses
 }

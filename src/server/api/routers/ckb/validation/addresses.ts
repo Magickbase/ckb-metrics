@@ -1,18 +1,18 @@
 import { getTipHeader } from '@/utils/ckb/rpc'
 import { getTipBlockNumber } from '@/utils/ckb/explorer'
-import { validateAddressesInBlock } from '@/utils/ckb/validation'
+import { validateAddressesInBlocks } from '@/utils/ckb/validation'
 import { validatedBlockHashes } from '@/utils/state'
 
 export default async () => {
   // Logic is too simple to be in service
-  const explorerTipBlockNumber = await getTipBlockNumber()
+  const [explorerTipBlockNumber, nodeTipHeader] = await Promise.all([getTipBlockNumber(), getTipHeader()])
+
   if (explorerTipBlockNumber === null) {
     return {
       message: `Explorer Tip Block Number is null`,
     }
   }
 
-  const nodeTipHeader = await getTipHeader()
   if (+nodeTipHeader.number !== explorerTipBlockNumber) {
     return {
       message: `Explorer Tip Block doesn't match ckb node`,
@@ -31,7 +31,7 @@ export default async () => {
 
   validatedBlockHashes.add(nodeTipHeader.hash)
 
-  const result = await validateAddressesInBlock(nodeTipHeader.hash)
+  const result = await validateAddressesInBlocks(+nodeTipHeader.number)
   return {
     data: result,
   }

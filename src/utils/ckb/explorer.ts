@@ -29,7 +29,8 @@ export const getTipBlockNumber = async (): Promise<number | null> => {
       headers: GENERAL_HEADERS,
     }).then((r) => r.json())
     return res.data.attributes.tip_block_number ?? null
-  } catch {
+  } catch (e) {
+    console.error(e)
     return null
   }
 }
