@@ -44,3 +44,13 @@ export const batchAdd = async (addresses: Omit<Address, 'expireTime'>[]) => {
 export const clear = async () => {
   return db.from(Tables.ValidatedAddress).delete().lt('expire_time', new Date().toISOString())
 }
+
+export const getIncorrectAddresses = async (): Promise<
+  { address: string; is_correct: boolean; expire_time: string }[]
+> => {
+  return db
+    .from(Tables.ValidatedAddress)
+    .select()
+    .eq('is_correct', false)
+    .then((res) => res.data ?? [])
+}
