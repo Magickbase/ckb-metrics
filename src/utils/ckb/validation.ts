@@ -1,16 +1,21 @@
 import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
+import { validatedBlockHashes } from '@/utils/state'
+import * as addressDb from '@/server/db/address'
 import { log } from '@/utils/notifier/log'
-import { notify } from '@/utils/notifier/tg'
-import { validatedBlockHashes, validatedAddresses } from '@/utils/state'
+import { notify as tgNotify } from '@/utils/notifier/tg'
 
 const TOLERANCE = 100n // 1%
-// const EXPIRE_MILLISECONDS = 10 * 60
 
 interface Address {
   capacity: bigint
   error?: string
+}
+
+const notify = (address: string, message: string) => {
+  log(address, message)
+  tgNotify(address, message)
 }
 
 // TODO validate inputs
@@ -41,11 +46,36 @@ export const validateAddressesInBlocks = async (tip: number) => {
       ),
     ),
   ]
-  const addressesToValidate = addresses.filter((addr) => validatedAddresses.isExpired(addr))
-  validatedAddresses.add(addressesToValidate)
+  const cachedAddresses = await addressDb.batchGet(addresses)
+  const NOW = Date.now()
+  const addressesToValidate = addresses.filter((addr) => {
+    if (!cachedAddresses?.includes(addr)) {
+      return true
+    }
+    const cachedAddr = cachedAddresses.find((a) => a === addr)
+    if (!cachedAddr) return true
+    if (new Date(cachedAddr.expire_time).getTime() < NOW) return true
+  })
   console.info(`Validating ${addressesToValidate.length} addresses\n${addressesToValidate.map((a) => a).join('\n')}`)
 
   const result = await validateAddresses(addressesToValidate)
+
+  for (const item of result.entries()) {
+    if (item[1].error) {
+      const addr = item[0]
+      if (!cachedAddresses?.find((a) => a === addr)?.is_correct) {
+        continue
+      }
+      notify(item[0], item[1].error)
+    }
+  }
+
+  await addressDb.batchAdd(
+    [...result.entries()].map(([address, { error }]) => ({
+      address,
+      isCorrect: !!error,
+    })),
+  )
   return Object.fromEntries(result)
 }
 
@@ -68,12 +98,6 @@ export const validateAddresses = async (addrList: string[]) => {
     if (diff > n.capacity / TOLERANCE) {
       n.error = `Expected ${n.capacity} but got ${e.capacity} from explorer, diff by ${diff}`
     }
-  }
-
-  for (const [addr, { error }] of addresses.entries()) {
-    if (!error) continue
-    log(addr, error)
-    notify(addr, error)
   }
 
   return addresses

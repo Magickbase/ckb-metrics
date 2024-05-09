@@ -3,19 +3,17 @@ export interface Database {
     Tables: {
       validated_addresses: {
         Row: {
-          id: number
           address: string
-          expire_time: number
+          expire_time: string
           is_correct: boolean
         }
         Insert: {
-          id?: never
           address: string
-          expire_time: number
+          expire_time: string
           is_correct: boolean
         }
         Delete: {
-          id: number
+          address: string
         }
       }
       tg_chats: {
