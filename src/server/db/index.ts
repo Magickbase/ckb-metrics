@@ -1,8 +1,6 @@
-// import { drizzle } from 'drizzle-orm/vercel-postgres'
-// import { sql } from '@vercel/postgres'
-// import * as schema from './schema'
+import { createClient } from '@supabase/supabase-js'
+import { env } from '@/env'
+import type { Database } from '@/server/db/database.types'
 
-// import { pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
-
-// Use this object to send drizzle queries to your DB
-// export const db = drizzle(sql, { schema })
+export const db = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY)
+export * from '@/server/db/database.types'

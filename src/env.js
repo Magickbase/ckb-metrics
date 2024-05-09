@@ -12,6 +12,8 @@ export const env = createEnv({
     CKB_RPC_URL: z.string().url(),
     CKB_EXPLORER_URL: z.string().url(),
     TG_TOKEN: z.string(),
+    SUPABASE_URL: z.string().url(),
+    SUPABASE_KEY: z.string(),
   },
 
   /**
@@ -33,6 +35,8 @@ export const env = createEnv({
     CKB_RPC_URL: process.env.CKB_RPC_URL,
     CKB_EXPLORER_URL: process.env.CKB_EXPLORER_URL,
     TG_TOKEN: process.env.TG_TOKEN,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_KEY: process.env.SUPABASE_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

@@ -1,7 +1,8 @@
 import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
-import { notify as log } from '@/utils/notifier/tg'
+import { log } from '@/utils/notifier/log'
+import { notify } from '@/utils/notifier/tg'
 import { validatedBlockHashes, validatedAddresses } from '@/utils/state'
 
 const TOLERANCE = 100n // 1%
@@ -72,6 +73,7 @@ export const validateAddresses = async (addrList: string[]) => {
   for (const [addr, { error }] of addresses.entries()) {
     if (!error) continue
     log(addr, error)
+    notify(addr, error)
   }
 
   return addresses
