@@ -17,8 +17,10 @@ export default async () => {
       message: `Explorer Tip Block doesn't match ckb node`,
     }
   }
+  const LATENCY = 3 // latency in block number due to performance issue of ckb explorer
 
-  const result = await validateAddressesInBlocks(+nodeTipHeader.number)
+  const result = await validateAddressesInBlocks(+nodeTipHeader.number - LATENCY)
+
   return {
     data: result,
   }
