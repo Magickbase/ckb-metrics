@@ -4,7 +4,6 @@ import nodeApi from '@/utils/ckb/rpc'
 import { validatedBlockHashes } from '@/utils/state'
 import * as addressDb from '@/server/db/address'
 import { log } from '@/utils/notifier/log'
-import { notify as tgNotify } from '@/utils/notifier/tg'
 
 const TOLERANCE = 100n // 1%
 
@@ -15,7 +14,6 @@ interface Address {
 
 const notify = (address: string, message: string) => {
   log(address, message)
-  tgNotify(address, message)
 }
 
 // TODO validate inputs
@@ -70,7 +68,7 @@ export const validateAddressesInBlocks = async (tip: number) => {
     }
   }
 
-  await addressDb.batchAdd(
+  await addressDb.batchUpdate(
     [...result.entries()].map(([address, { error }]) => ({
       address,
       isCorrect: !!error,
@@ -81,6 +79,8 @@ export const validateAddressesInBlocks = async (tip: number) => {
 
 export const validateAddresses = async (addrList: string[]) => {
   const addresses = new Map<string, Address>(addrList.map((addr) => [addr, { capacity: 0n }]))
+
+  if (!addrList.length) return addresses
 
   const capacities = await nodeApi.getCapacitiesByAddresses([...addresses.keys()])
 

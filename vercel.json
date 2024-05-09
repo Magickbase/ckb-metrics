@@ -3,6 +3,10 @@
     {
       "path": "/api/trpc/ckb.validation.addresses",
       "schedule": "*/1 * * * *"
+    },
+    {
+      "path": "/api/trpc/ckb.validation.revalidate",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

@@ -24,7 +24,7 @@ export const batchGet = async (addresses: string[]) => {
     .then((res) => res.data)
 }
 
-export const batchAdd = async (addresses: Omit<Address, 'expireTime'>[]) => {
+export const batchUpdate = async (addresses: Omit<Address, 'expireTime'>[]) => {
   await clear()
   const expireTime = Date.now() + EXPIRE_MILLISECONDS
   const res = await db
@@ -37,7 +37,6 @@ export const batchAdd = async (addresses: Omit<Address, 'expireTime'>[]) => {
       })),
     )
     .select()
-  console.log(res)
   return res
 }
 
