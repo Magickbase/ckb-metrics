@@ -71,7 +71,7 @@ export const validateAddressesInBlocks = async (tip: number) => {
   await addressDb.batchUpdate(
     [...result.entries()].map(([address, { error }]) => ({
       address,
-      isCorrect: !!error,
+      isCorrect: !error,
     })),
   )
   return Object.fromEntries(result)
