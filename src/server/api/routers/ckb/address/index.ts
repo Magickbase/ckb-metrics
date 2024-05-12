@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
-import { getIncorrectAddresses } from '@/server/db/address'
+import { getIncorrectAddresses } from '@/server/db/queries/addresses'
 import { getCapacitiesByAddresses } from '@/utils/ckb/rpc'
 
 export const addressRouter = createTRPCRouter({

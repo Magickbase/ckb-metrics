@@ -2,7 +2,7 @@ import { type HashType, helpers } from '@ckb-lumos/lumos'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
 import { validatedBlockHashes } from '@/utils/state'
-import * as addressDb from '@/server/db/address'
+import * as addressesQueries from '@/server/db/queries/addresses'
 import { log } from '@/utils/notifier/log'
 
 const TOLERANCE = 100n // 1%
@@ -44,15 +44,15 @@ export const validateAddressesInBlocks = async (tip: number) => {
       ),
     ),
   ]
-  const cachedAddresses = await addressDb.batchGet(addresses)
+  const cachedAddresses = await addressesQueries.batchGet(addresses)
   const NOW = Date.now()
   const addressesToValidate = addresses.filter((addr) => {
-    if (!cachedAddresses?.includes(addr)) {
+    if (!cachedAddresses.some((ca) => ca.address === addr)) {
       return true
     }
-    const cachedAddr = cachedAddresses.find((a) => a === addr)
+    const cachedAddr = cachedAddresses.find((a) => a.address === addr)
     if (!cachedAddr) return true
-    if (new Date(cachedAddr.expire_time).getTime() < NOW) return true
+    if (new Date(cachedAddr.expireTime).getTime() < NOW) return true
   })
   console.info(`Validating ${addressesToValidate.length} addresses\n${addressesToValidate.map((a) => a).join('\n')}`)
 
@@ -61,14 +61,14 @@ export const validateAddressesInBlocks = async (tip: number) => {
   for (const item of result.entries()) {
     if (item[1].error) {
       const addr = item[0]
-      if (!cachedAddresses?.find((a) => a === addr)?.is_correct) {
+      if (!cachedAddresses.find((a) => a.address === addr)?.isCorrect) {
         continue
       }
       notify(item[0], item[1].error)
     }
   }
 
-  await addressDb.batchUpdate(
+  await addressesQueries.batchUpdate(
     [...result.entries()].map(([address, { error }]) => ({
       address,
       isCorrect: !error,

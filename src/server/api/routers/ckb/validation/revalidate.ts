@@ -1,9 +1,9 @@
-import * as addressDb from '@/server/db/address'
+import * as addressesQueries from '@/server/db/queries/addresses'
 import { validateAddresses } from '@/utils/ckb/validation'
 import { notify } from '@/utils/notifier/tg'
 
 const revalidate = async () => {
-  const addresses = await addressDb.getIncorrectAddresses().then((list) => list.map((item) => item.address))
+  const addresses = await addressesQueries.getIncorrectAddresses().then((list) => list.map((item) => item.address))
   const result = await validateAddresses(addresses)
   const fixed = []
   const remains = []
@@ -18,7 +18,7 @@ const revalidate = async () => {
     }
   }
 
-  await addressDb.batchUpdate(fixed.map((address) => ({ address, isCorrect: true })))
+  await addressesQueries.batchUpdate(fixed.map((address) => ({ address, isCorrect: true })))
 
   return { fixed, remains }
 }

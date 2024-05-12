@@ -12,8 +12,7 @@ export const env = createEnv({
     CKB_RPC_URL: z.string().url(),
     CKB_EXPLORER_URL: z.string().url(),
     TG_TOKEN: z.string(),
-    SUPABASE_URL: z.string().url(),
-    SUPABASE_KEY: z.string(),
+    DATABASE_URL: z.string().url(),
   },
 
   /**
@@ -30,14 +29,11 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    // POSTGRES_URL: process.env.POSTGRES_URL,
+    DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     CKB_RPC_URL: process.env.CKB_RPC_URL,
     CKB_EXPLORER_URL: process.env.CKB_EXPLORER_URL,
     TG_TOKEN: process.env.TG_TOKEN,
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_KEY: process.env.SUPABASE_KEY,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

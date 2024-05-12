@@ -1,12 +1,13 @@
-import { type Config } from "drizzle-kit";
-
-import { env } from "@/env";
+import { env } from '@/env'
 
 export default {
-  schema: "./src/server/db/schema.ts",
-  driver: "pg",
+  dialect: 'postgresql',
+  schema: './src/server/db/schema.ts',
+  out: './migrations',
+  driver: 'pg',
   dbCredentials: {
-    connectionString: env.POSTGRES_URL,
+    connectionString: env.DATABASE_URL,
   },
-  tablesFilter: ["ckb-metrics_*"],
-} satisfies Config;
+  url: env.DATABASE_URL,
+  tablesFilter: ['ckb-metrics_*'],
+}
