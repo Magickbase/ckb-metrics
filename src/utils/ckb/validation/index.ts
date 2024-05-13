@@ -84,6 +84,7 @@ export const validateAddresses = async (addrList: string[]) => {
   if (!addrList.length) return addresses
 
   const capacities = await nodeApi.getCapacitiesByAddresses([...addresses.keys()])
+  const cellsList = await nodeApi.getCellsByAddresses([...addresses.keys()])
 
   capacities.forEach(({ address, capacity }) => {
     addresses.set(address, { capacity })
@@ -104,10 +105,9 @@ export const validateAddresses = async (addrList: string[]) => {
       continue
     }
 
-    const script = helpers.addressToScript(addr)
-    const cells = await nodeApi.getLiveCells(script).catch(() => null)
+    const cells = cellsList.get(addr)
 
-    if (cells === null) continue
+    if (!cells) continue
 
     addresses.set(addr, { ...n, cellCount: cells.length })
 
