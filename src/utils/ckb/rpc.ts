@@ -1,4 +1,5 @@
-import { RPC, helpers } from '@ckb-lumos/lumos'
+import { scheduler } from 'node:timers/promises'
+import { RPC, Script, helpers } from '@ckb-lumos/lumos'
 import { env } from '@/env'
 
 const rpc = new RPC(env.CKB_RPC_URL)
@@ -105,9 +106,32 @@ export const getTipHeader = async () => {
   return res
 }
 
+export const getLiveCells = async (script: Script, scriptType: 'lock' | 'type' = 'lock') => {
+  let cursor: string | undefined = undefined
+  const cells = []
+  while (true) {
+    const res = await rpc.getCells(
+      {
+        script,
+        scriptType,
+      },
+      'asc',
+      1000n,
+    )
+    if (!res.objects.length) {
+      break
+    }
+    cells.push(...res.objects)
+    cursor = res.lastCursor
+    await scheduler.wait(100)
+  }
+  return cells
+}
+
 export default {
   getBlocks,
   getBlockByHash,
   getCapacitiesByAddresses,
   getTipHeader,
+  getLiveCells,
 }

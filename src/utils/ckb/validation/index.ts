@@ -10,6 +10,7 @@ const TOLERANCE = 100n // 1%
 interface Address {
   capacity: bigint
   error?: string
+  cellCount?: number
 }
 
 const notify = (address: string, message: string) => {
@@ -89,14 +90,31 @@ export const validateAddresses = async (addrList: string[]) => {
   })
 
   for (const addr of addresses.keys()) {
-    const e = await explorerApi.getBalancByAddress(addr)
+    const e = await explorerApi.getAddressAttribute(addr)
     const n = addresses.get(addr)
+
     if (!e || !n) continue
+
     let diff = n.capacity - e.capacity
     if (diff < 0) diff = -1n * diff
 
     if (diff > n.capacity / TOLERANCE) {
+      // verify capacity
       n.error = `Expected ${n.capacity} but got ${e.capacity} from explorer, diff by ${diff}`
+      continue
+    }
+
+    const script = helpers.addressToScript(addr)
+    const cells = await nodeApi.getLiveCells(script).catch(() => null)
+
+    if (cells === null) continue
+
+    addresses.set(addr, { ...n, cellCount: cells.length })
+
+    if (cells.length !== e.cellCount) {
+      // verify cell count
+      n.error = `Expected ${e.cellCount} cells but got ${cells.length} from explorer `
+      continue
     }
   }
 
