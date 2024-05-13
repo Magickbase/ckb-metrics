@@ -29,5 +29,3 @@ export const notify = async (address: string, message: string) => {
     bot.sendMessage(chatId, msg)
   })
 }
-
-export { bot }

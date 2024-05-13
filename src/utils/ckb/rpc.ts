@@ -116,7 +116,7 @@ export const getLiveCells = async (script: Script, scriptType: 'lock' | 'type' =
         scriptType,
       },
       'asc',
-      1000n,
+      3000n,
     )
     if (!res.objects.length) {
       break

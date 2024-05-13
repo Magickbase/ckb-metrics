@@ -21,7 +21,7 @@ export const getAddressAttribute = async (
   if (!res) {
     res = await fetch(endpoint, { headers: GENERAL_HEADERS })
       .then((res) => res.json())
-      .then((r) => r.data[0]?.attribtues ?? null)
+      .then((r) => r.data[0]?.attributes ?? null)
       .catch((e) => {
         console.error(e)
         return null

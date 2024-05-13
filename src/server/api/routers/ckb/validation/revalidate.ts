@@ -1,6 +1,8 @@
 import * as addressesQueries from '@/server/db/queries/addresses'
 import { validateAddresses } from '@/utils/ckb/validation'
 import { notify } from '@/utils/notifier/tg'
+import { log } from '@/utils/notifier/log'
+import { env } from '@/env'
 
 const revalidate = async () => {
   const addresses = await addressesQueries.getIncorrectAddresses().then((list) => list.map((item) => item.address))
@@ -12,8 +14,12 @@ const revalidate = async () => {
       if (!item[1].error) {
         fixed.push(item[0])
       } else {
-        notify(item[0], item[1].error)
         remains.push(item[0])
+        if (env.NODE_ENV === 'development') {
+          log(item[0], item[1].error)
+        } else {
+          notify(item[0], item[1].error)
+        }
       }
     }
   }

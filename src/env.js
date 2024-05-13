@@ -11,7 +11,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     CKB_RPC_URL: z.string().url(),
     CKB_EXPLORER_URL: z.string().url(),
-    TG_TOKEN: z.string(),
+    TG_TOKEN: z.string().optional(),
     DATABASE_URL: z.string().url(),
   },
 
