@@ -9,7 +9,7 @@ export const getBlockByHash = async (hash: string) => {
   return res
 }
 
-namespace RawResponse {
+export namespace RawResponse {
   export interface Input {
     previous_output: Record<'index' | 'tx_hash', string>
     since: string
@@ -46,6 +46,7 @@ namespace RawResponse {
       lock: Script
       type: Script | null
     }
+    output_data: string
   }
 }
 

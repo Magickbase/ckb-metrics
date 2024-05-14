@@ -13,6 +13,7 @@ export const env = createEnv({
     CKB_EXPLORER_URL: z.string().url(),
     TG_TOKEN: z.string().optional(),
     DATABASE_URL: z.string().url(),
+    CKB_CHAIN_TYPE: z.enum(['mainnet', 'testnet']).default('mainnet'),
   },
 
   /**
@@ -34,6 +35,7 @@ export const env = createEnv({
     CKB_RPC_URL: process.env.CKB_RPC_URL,
     CKB_EXPLORER_URL: process.env.CKB_EXPLORER_URL,
     TG_TOKEN: process.env.TG_TOKEN,
+    CKB_CHAIN_TYPE: process.env.CKB_CHAIN_TYPE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

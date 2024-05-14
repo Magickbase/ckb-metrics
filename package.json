@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "db:push": "drizzle-kit push:pg",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --turbo",
     "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
+    "@ckb-lumos/codec": "^0.22.2",
     "@ckb-lumos/lumos": "^0.22.2",
     "@supabase/supabase-js": "^2.43.1",
     "@t3-oss/env-nextjs": "^0.10.1",

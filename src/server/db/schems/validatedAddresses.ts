@@ -8,11 +8,9 @@ export const validatedAddressesTable = createTable(
     expireTime: timestamp('expire_time').notNull(),
     isCorrect: boolean('is_correct').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
+    error: text('error'),
   },
   (address) => ({
     addressIndex: index('address_idx').on(address.address),
   }),
 )
-
-export type InsertAddress = typeof validatedAddressesTable.$inferInsert
-export type SelectAddress = typeof validatedAddressesTable.$inferSelect

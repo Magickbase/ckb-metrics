@@ -12,7 +12,14 @@ export interface Address {
 
 export const batchGet = async (addresses: string[]) => {
   if (!addresses.length) return []
-  return db.select().from(validatedAddressesTable).where(inArray(validatedAddressesTable.address, addresses))
+  return db
+    .select({
+      address: validatedAddressesTable.address,
+      expireTime: validatedAddressesTable.expireTime,
+      isCorrect: validatedAddressesTable.isCorrect,
+    })
+    .from(validatedAddressesTable)
+    .where(inArray(validatedAddressesTable.address, addresses))
 }
 
 export const batchUpdate = async (addresses: Omit<Address, 'expireTime'>[]) => {
@@ -28,6 +35,7 @@ export const batchUpdate = async (addresses: Omit<Address, 'expireTime'>[]) => {
       target: validatedAddressesTable.address,
       set: {
         isCorrect: sql`excluded.is_correct`,
+        error: sql`excluded.error`,
         expireTime,
       },
     })
@@ -38,5 +46,11 @@ export const clear = async () => {
 }
 
 export const getIncorrectAddresses = async () => {
-  return db.select().from(validatedAddressesTable).where(eq(validatedAddressesTable.isCorrect, false))
+  return db
+    .select({
+      address: validatedAddressesTable.address,
+      error: validatedAddressesTable.error,
+    })
+    .from(validatedAddressesTable)
+    .where(eq(validatedAddressesTable.isCorrect, false))
 }

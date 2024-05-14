@@ -6,11 +6,23 @@ const IncorrectAddresses = async () => {
     <div>
       {addresses.map((addr) => {
         return (
-          <div id={addr.address}>
-            <a href={`https://explorer.nervos.org/address/${addr.address}`} target="_blank">
-              {addr.address}
-            </a>
-            <div>{addr.capacity}</div>
+          <div id={addr.address} className="mb-4 font-mono text-sm leading-none">
+            <dl>
+              <dt>address:</dt>
+              <dd>
+                <a
+                  href={`https://explorer.nervos.org/address/${addr.address}`}
+                  target="_blank"
+                  className="text-blue-500 underline"
+                >
+                  {addr.address}
+                </a>
+              </dd>
+            </dl>
+            <dl>
+              <dt>error: </dt>
+              <dd>{addr.error}</dd>
+            </dl>
           </div>
         )
       })}

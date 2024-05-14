@@ -1,9 +1,10 @@
 import { type HashType, helpers } from '@ckb-lumos/lumos'
+import * as addressesQueries from '@/server/db/queries/addresses'
 import explorerApi from '@/utils/ckb/explorer'
 import nodeApi from '@/utils/ckb/rpc'
 import { validatedBlockHashes } from '@/utils/state'
-import * as addressesQueries from '@/server/db/queries/addresses'
 import { log } from '@/utils/notifier/log'
+import { getXudtsFromCells } from './utils'
 
 const TOLERANCE = 100n // 1%
 
@@ -73,6 +74,7 @@ export const validateAddressesInBlocks = async (tip: number) => {
     [...result.entries()].map(([address, { error }]) => ({
       address,
       isCorrect: !error,
+      error,
     })),
   )
   return Object.fromEntries(result)
@@ -101,7 +103,7 @@ export const validateAddresses = async (addrList: string[]) => {
 
     if (diff > n.capacity / TOLERANCE) {
       // verify capacity
-      n.error = `Expected ${n.capacity} but got ${e.capacity} from explorer, diff by ${diff}`
+      n.error = `Expected capacity ${n.capacity} but got ${e.capacity} from explorer, diff by ${diff}`
       continue
     }
 
@@ -114,6 +116,29 @@ export const validateAddresses = async (addrList: string[]) => {
     if (cells.length !== e.cellCount) {
       // verify cell count
       n.error = `Expected ${e.cellCount} cells but got ${cells.length} from explorer `
+      continue
+    }
+
+    // verify xudts
+    const xudtsFromNode = getXudtsFromCells(cells)
+    for (const [typeHash, amount] of e.xudts.entries()) {
+      if (!xudtsFromNode.has(typeHash)) {
+        n.error = `xudt ${typeHash} found in explorer but not in node`
+        continue
+      }
+
+      const amountFromNode = xudtsFromNode.get(typeHash)
+      if (amount !== amountFromNode) {
+        // xudt amount mismatch
+        n.error = `Expected xudt ${typeHash} amount ${amountFromNode} but got ${amount} in explorer`
+        continue
+      }
+
+      xudtsFromNode.delete(typeHash)
+    }
+
+    if (xudtsFromNode.size) {
+      n.error = `xudt ${[...xudtsFromNode.keys()].join(', ')} found in node but not in explorer`
       continue
     }
   }
