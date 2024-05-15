@@ -18,6 +18,7 @@ const revalidate = async () => {
         if (env.NODE_ENV === 'development') {
           log(item[0], item[1].error)
         } else {
+          log(item[0], item[1].error)
           notify(item[0], item[1].error)
         }
       }
