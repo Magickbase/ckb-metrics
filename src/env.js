@@ -23,6 +23,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_CKB_RPC_URL: z.string().url(),
   },
 
   /**
@@ -36,6 +37,7 @@ export const env = createEnv({
     CKB_EXPLORER_URL: process.env.CKB_EXPLORER_URL,
     TG_TOKEN: process.env.TG_TOKEN,
     CKB_CHAIN_TYPE: process.env.CKB_CHAIN_TYPE,
+    NEXT_PUBLIC_CKB_RPC_URL: process.env.NEXT_PUBLIC_CKB_RPC_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
