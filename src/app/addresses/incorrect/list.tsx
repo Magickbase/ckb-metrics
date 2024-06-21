@@ -11,7 +11,6 @@ const List: FC<{ addresses: Array<{ address: string; error: string | null }> }> 
     initialData: new Map(),
   })
 
-  console.log(cells)
   return (
     <div className="p-4">
       {addresses.map((addr) => {

@@ -32,7 +32,6 @@ export const getCellsByAddresses = async (addresses: string[]) => {
     .then((r) => r.json())
     .then((list) =>
       list.map((x: { result?: { objects: Array<RawResponse.Cell> } }) => {
-        console.log(x.result?.objects)
         if (!x.result?.objects) return null
         if (x.result.objects.length === LIMIT) {
           // maybe more cells, skip
@@ -42,7 +41,7 @@ export const getCellsByAddresses = async (addresses: string[]) => {
       }),
     )
     .catch((e) => {
-      console.log(e)
+      console.error(e)
     })
 
   const map = new Map<string, Array<RawResponse.Cell>>()

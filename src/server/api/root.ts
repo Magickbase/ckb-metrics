@@ -1,6 +1,7 @@
 import { postRouter } from '@/server/api/routers/post'
 import { validationRouter } from '@/server/api/routers/ckb/validation'
 import { addressRouter } from '@/server/api/routers/ckb/address'
+import { holderRouter } from '@/server/api/routers/ckb/holder'
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
 
 /**
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   ckb: {
     validation: validationRouter,
     address: addressRouter,
+    holder: holderRouter,
   },
 })
 
