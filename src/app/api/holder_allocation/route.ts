@@ -8,5 +8,11 @@ export const POST = async (req: Request) => {
     })
   }
   const holders = await api.ckb.holder.holderAllocation(scripts)
-  return Response.json({ holders: Object.fromEntries(holders) })
+  return new Response(JSON.stringify(Object.fromEntries(holders)), {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
 }
