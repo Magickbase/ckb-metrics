@@ -49,7 +49,7 @@ export const getHolderAllocation = async (typeScript: Script) => {
       (r: [token: string, blockNumber: string, time: string, holder: string, ckbAddress: string, amount: string]) =>
         r[4],
     )
-  holders.forEach((h) => {
+  new Set(holders).forEach((h) => {
     let key: string | null = null
     if (h.startsWith('ckb')) {
       // ckb holder
