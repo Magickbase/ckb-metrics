@@ -3,14 +3,18 @@ import { type Script } from '@ckb-lumos/lumos'
 import { api } from '@/trpc/server'
 import { computeScriptHash } from '@ckb-lumos/lumos/utils'
 
+export const maxDuration = 300
+
 export const GET = async (req: NextRequest) => {
   const { searchParams } = req.nextUrl
   const codeHash = searchParams.get('code_hash')
   const hashType = searchParams.get('hash_type')
   const args = searchParams.get('args')
+
   if (!codeHash || !hashType || !args) {
     return new Response('codeHash, hashType, args are required', { status: 400 })
   }
+
   const typeScript = { codeHash, hashType, args } as Script
   const typeHash = computeScriptHash(typeScript)
 
