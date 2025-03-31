@@ -1,16 +1,17 @@
 {
-  "crons": [
-    {
-      "path": "/api/trpc/ckb.validation.addresses",
-      "schedule": "*/1 * * * *"
-    },
-    {
-      "path": "/api/trpc/ckb.validation.revalidate",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/trpc/ckb.holder.sync",
-      "schedule": "*/5 * * * *"
-    }
-  ]
-}
+   "crons": [
+     {
+       "path": "/api/trpc/ckb.validation.addresses",
+       "schedule": "*/1 * * * *"
+     },
+     {
+       "path": "/api/trpc/ckb.validation.revalidate",
+       "schedule": "*/5 * * * *"
+     },
+     {
+       "path": "/api/trpc/ckb.holder.sync",
+       "schedule": "*/5 * * * *"
+     }
+   ]
+   "crons": []
+ }
