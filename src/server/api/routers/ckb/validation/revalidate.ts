@@ -25,7 +25,7 @@ const revalidate = async () => {
     }
   }
 
-  await addressesQueries.batchUpdate(fixed.map((address) => ({ address, isCorrect: true, error: null })))
+  await addressesQueries.batchUpdate(fixed.map((address) => ({ address, isCorrect: true, error: undefined })))
 
   return { fixed, remains }
 }
