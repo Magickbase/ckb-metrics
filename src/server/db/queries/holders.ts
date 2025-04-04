@@ -1,6 +1,4 @@
-import { inArray } from 'drizzle-orm'
-import { db } from '@/server/db'
-import { holdersTable } from '@/server/db/schema'
+import { db, get, set } from '@/server/db'
 import { getHolderAllocation } from '@/utils/ckb/getHolderAllocation'
 
 interface Holder {
@@ -11,53 +9,45 @@ interface Holder {
   holders: Record<string, number>
 }
 
+const HOLDERS_KEY_PREFIX = 'holders:'
+
 export const batchGet = async (typeHashes: string[]) => {
   const res = new Map<string, unknown>()
   if (!typeHashes.length) return res
 
-  const r = await db
-    .select({
-      typeHash: holdersTable.typeHash,
-      holders: holdersTable.holders,
-    })
-    .from(holdersTable)
-    .where(inArray(holdersTable.typeHash, typeHashes))
-
-  r.forEach((i) => {
-    res.set(i.typeHash, i.holders)
-  })
+  await Promise.all(
+    typeHashes.map(async (typeHash) => {
+      const holders = await get(HOLDERS_KEY_PREFIX + typeHash)
+      if (holders) {
+        res.set(typeHash, holders)
+      }
+    }),
+  )
 
   return res
 }
 
 export const update = async (holders: Holder) => {
-  await db
-    .insert(holdersTable)
-    .values([holders])
-    .onConflictDoUpdate({
-      target: holdersTable.typeHash,
-      set: {
-        holders: holders.holders,
-      },
-    })
+  await set(HOLDERS_KEY_PREFIX + holders.typeHash, holders)
 }
 
 export const syncAll = async () => {
-  const list = await db
-    .select({
-      typeHash: holdersTable.typeHash,
-      codeHash: holdersTable.codeHash,
-      hashType: holdersTable.hashType,
-      args: holdersTable.args,
+  const keys = await db.keys(HOLDERS_KEY_PREFIX + '*')
+  for (const key of keys) {
+    const holder = await get(key)
+    if (!holder) continue
+
+    const allocation = await getHolderAllocation({
+      codeHash: holder.codeHash,
+      hashType: holder.hashType as any,
+      args: holder.args,
     })
-    .from(holdersTable)
-  for (const i of list) {
-    const allocation = await getHolderAllocation({ codeHash: i.codeHash, hashType: i.hashType as any, args: i.args })
+
     await update({
-      typeHash: i.typeHash,
-      codeHash: i.codeHash,
-      hashType: i.hashType,
-      args: i.args,
+      typeHash: holder.typeHash,
+      codeHash: holder.codeHash,
+      hashType: holder.hashType,
+      args: holder.args,
       holders: Object.fromEntries(allocation),
     })
   }

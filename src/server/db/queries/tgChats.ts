@@ -1,15 +1,24 @@
-import { eq } from 'drizzle-orm'
-import { db } from '@/server/db'
-import { tgChatsTable } from '@/server/db/schema'
+import { get, set } from '@/server/db'
 
-export const getChats = async () => {
-  return db.select().from(tgChatsTable)
+const CHATS_KEY = 'telegram_chats'
+
+export const getChats = async (): Promise<number[]> => {
+  const chats = await get(CHATS_KEY)
+  return chats || []
 }
 
 export const addChat = async (chatId: number) => {
-  return db.insert(tgChatsTable).values({ chatId }).onConflictDoNothing()
+  const chats = await getChats()
+  if (!chats.includes(chatId)) {
+    chats.push(chatId)
+    await set(CHATS_KEY, chats)
+  }
+  return true
 }
 
 export const deleteChat = async (chatId: number) => {
-  return db.delete(tgChatsTable).where(eq(tgChatsTable.chatId, chatId))
+  const chats = await getChats()
+  const filteredChats = chats.filter((id) => id !== chatId)
+  await set(CHATS_KEY, filteredChats)
+  return true
 }
